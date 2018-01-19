@@ -1,5 +1,6 @@
 from datetime import datetime as dt
 from datetime import timedelta as td
+import time
 import os
 
 host_paths = ["C:\Windows\System32\drivers\etc\hosts","/etc/hosts"]
@@ -37,12 +38,12 @@ def time_to_be_blocked():
     return time_blocked
 
 
-def add_to_host(file_content, list_of_websites):
+def add_to_host(file_content, list_of_websites, host_file):
     for website in list_of_websites:
         if website in file_content:
             pass
         else:
-            file_content.write(redirect_path + ' ' + website + '\n')
+            host_file.write(redirect_path + ' ' + website + '\n')
 
 
 def del_from_host(file_content, list_of_websites):
@@ -61,22 +62,24 @@ start_time = dt.now()
 end_time = start_time + td(hours=time_blocked[0], minutes=time_blocked[1], seconds=time_blocked[2])
 
 while start_time < end_time:
+    time.sleep(5)
     print("Blocking sites...")
     if os.name == 'nt':
         with open(host_paths[0], 'r+') as host:
             content = host.read()
-            add_to_host(content, list_of_websites)
+            add_to_host(content, list_of_websites, host)
     else:
         with open(host_paths[1], 'r+') as host:
             content = host.read()
-            add_to_host(content, list_of_websites)
+            add_to_host(content, list_of_websites, host)
+    start_time = dt.now()
 
 
 if os.name == 'nt':
     with open(host_paths[0], 'r+') as host:
         content = host.readlines()
-        del_from_host(content, list_of_websites)
+        del_from_host(host, list_of_websites)
 else:
     with open(host_paths[1], 'r+') as host:
-        content = host.read()
-        del_from_host(content, list_of_websites)
+        content = host.readlines()
+        del_from_host(host, list_of_websites)
